@@ -16,7 +16,7 @@ export const Chats = () => {
   //Crea la conexion cuando se monta el componente y la almacena en un estado
   useEffect(() => {
     const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7060/chathub")
+      .withUrl("https://instachat.azurewebsites.net/chathub")
       .build();
 
     setConnection(newConnection);
