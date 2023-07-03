@@ -1,32 +1,41 @@
 import React, { useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 export const Chats = () => {
+  const navigate = useNavigate();
   const [connection, setConnection] = useState(null);
   const [usuario, setUsuario] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
   const [messageList, setMessageList] = useState([]);
 
-  //Función que recibe los mensajes y loss guarda en el estado tipo array
+  //Función que recibe los mensajes y los guarda en el estado tipo array
   const receiveMessage = (message) => {
     setMessageList((prevMessageList) => [...prevMessageList, message]);
   };
 
-  //Crea la conexion cuando se monta el componente y la almacena en un estado
+  //Crea la conexión cuando se monta el componente y la almacena en un estado
   useEffect(() => {
-    const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("https://instachat.azurewebsites.net/chathub")
-      .build();
+    const token = Cookies.get("token");
 
-    setConnection(newConnection);
+    if (!token) {
+      navigate("/SignIn");
+    } else {
+      const newConnection = new signalR.HubConnectionBuilder()
+        .withUrl("https://instachat.azurewebsites.net/chathub")
+        .build();
 
-    return () => {
-      if (newConnection) {
-        newConnection.stop();
-      }
-    };
-  }, []);
+      setConnection(newConnection);
+
+      return () => {
+        if (newConnection) {
+          newConnection.stop();
+        }
+      };
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (connection) {

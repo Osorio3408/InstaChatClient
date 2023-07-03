@@ -6,10 +6,13 @@ import { FormUrl } from "../../Components/UI/FormUrl/FormUrl";
 import { AppName } from "../../Components/UI/AppName/AppName";
 import { FormOpinions } from "../../Components/Layout/FormOpinions/FormOpinions";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 export const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -27,6 +30,7 @@ export const SignIn = () => {
           theme: "dark",
         }
       );
+      return;
     }
 
     fetch(`https://instachat.azurewebsites.net/api/Auth/SignIn`, {
@@ -44,16 +48,29 @@ export const SignIn = () => {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error("Error al iniciar sesión");
+          return response.json().then((data) => {
+            toast.error(data.UserError[0], {
+              theme: "dark",
+            });
+            return Promise.reject(data);
+          });
         }
       })
       .then((data) => {
         // Manejar la respuesta exitosa (token)
-        console.log(data);
+        Cookies.set("token", data.value.token, { expires: 1 });
+        toast.success("!Bienvenido!", {
+          theme: "dark",
+        });
+        // console.log(data.value.token);
+        navigate("/");
       })
       .catch((error) => {
         // Manejar errores de red u otros errores
         console.error(error);
+        // toast.error(error.message || "Error al iniciar sesión", {
+        //   theme: "dark",
+        // });
       });
   };
 
