@@ -1,12 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import { FormInput } from "../../Components/Layout/FormInput/FormInput";
 import { FormBtn } from "../../Components/UI/FormBtn/FormBtn";
 import { FcGoogle } from "react-icons/fc";
 import { FormUrl } from "../../Components/UI/FormUrl/FormUrl";
 import { AppName } from "../../Components/UI/AppName/AppName";
 import { FormOpinions } from "../../Components/Layout/FormOpinions/FormOpinions";
+import { toast } from "react-toastify";
 
 export const SignIn = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    if (!email || !password) {
+      toast.error(
+        "Por favor ingrese todos los datos para poder iniciar sesión",
+        {
+          theme: "dark",
+        }
+      );
+    }
+
+    fetch(`https://instachat.azurewebsites.net/api/Auth/SignIn`, {
+      method: "POST",
+      body: JSON.stringify({
+        userEmail: email,
+        userPassword: password,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Error al iniciar sesión");
+        }
+      })
+      .then((data) => {
+        // Manejar la respuesta exitosa (token)
+        console.log(data);
+      })
+      .catch((error) => {
+        // Manejar errores de red u otros errores
+        console.error(error);
+      });
+  };
+
   return (
     <div className="h-fit w-screen bg-neutral-900 p-4 md:p-20 lg:p-10 xl:px-20 flex flex-col gap-14">
       <AppName />
@@ -20,14 +70,21 @@ export const SignIn = () => {
               type="email"
               label="Correo electrónico"
               placeholder={"correo123@gmail.com"}
+              onChange={handleEmailChange}
+              value={email}
+              name={"userEmail"}
             />
             <FormInput
               type="password"
               label=" Contraseña:"
               span="¿Se te olvidó la contraseña?"
               placeholder={"*****"}
+              onChange={handlePasswordChange}
+              value={password}
+              name={"userPassword"}
+              is={"SignIn"}
             />
-            <FormBtn btn={"Iniciar sesión"} />
+            <FormBtn btn={"Iniciar sesión"} onClick={handleSubmit} />
           </div>
           <div className="flex items-center gap-5">
             <span className="h-0.5 bg-black w-48"></span>
