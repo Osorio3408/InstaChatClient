@@ -16,7 +16,9 @@ export const Posts = () => {
     const fetchPosts = async () => {
       try {
         // Realizar la petición GET para obtener los posts
-        const postsResponse = await fetch("https://localhost:7060/api/Posts");
+        const postsResponse = await fetch(
+          "https://instachat.azurewebsites.net/api/Posts"
+        );
         if (postsResponse.ok) {
           const postsData = await postsResponse.json();
 
@@ -26,7 +28,7 @@ export const Posts = () => {
           // Realizar una petición GET para obtener la información de cada usuario
           const usersPromises = userIds.map(async (userId) => {
             const userResponse = await fetch(
-              `https://localhost:7060/api/User/${userId}`
+              `https://instachat.azurewebsites.net/api/User/${userId}`
             );
             if (userResponse.ok) {
               return userResponse.json();

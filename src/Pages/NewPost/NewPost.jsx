@@ -46,13 +46,16 @@ export const NewPost = () => {
     try {
       setIsLoading(true);
       // Realizar la petición POST al endpoint de creación de posts
-      const response = await fetch("https://localhost:7060/api/Posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newPost),
-      });
+      const response = await fetch(
+        "https://instachat.azurewebsites.net/api/Posts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newPost),
+        }
+      );
 
       if (response.ok) {
         setIsLoading(false);
