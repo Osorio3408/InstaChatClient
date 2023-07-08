@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FormInput } from "../../Components/Layout/FormInput/FormInput";
 import { FormBtn } from "../../Components/UI/FormBtn/FormBtn";
 import { FcGoogle } from "react-icons/fc";
@@ -8,11 +8,14 @@ import { FormOpinions } from "../../Components/Layout/FormOpinions/FormOpinions"
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../Context/UserContext";
 
 export const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { handleLogin } = useContext(UserContext);
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -33,6 +36,7 @@ export const SignIn = () => {
       return;
     }
 
+    setIsLoading(true);
     fetch(`https://instachat.azurewebsites.net/api/Auth/SignIn`, {
       method: "POST",
       body: JSON.stringify({
@@ -57,15 +61,19 @@ export const SignIn = () => {
         }
       })
       .then((data) => {
+        setIsLoading(false);
         // Manejar la respuesta exitosa (token)
         Cookies.set("token", data.value.token, { expires: 1 });
         toast.success("!Bienvenido!", {
           theme: "dark",
         });
+        handleLogin(data.value.token); // Actualizar el estado user con la información del usuario actual
+
         // console.log(data.value.token);
         navigate("/");
       })
       .catch((error) => {
+        setIsLoading(false);
         // Manejar errores de red u otros errores
         console.error(error);
         // toast.error(error.message || "Error al iniciar sesión", {
@@ -101,7 +109,11 @@ export const SignIn = () => {
               name={"userPassword"}
               is={"SignIn"}
             />
-            <FormBtn btn={"Iniciar sesión"} onClick={handleSubmit} />
+            <FormBtn
+              btn={"Iniciar sesión"}
+              onClick={handleSubmit}
+              isLoading={isLoading}
+            />
           </div>
           <div className="flex items-center gap-5">
             <span className="h-0.5 bg-black w-48"></span>

@@ -1,15 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { ImSpinner6 } from "react-icons/im";
+import { AppName } from "../../Components/UI/AppName/AppName";
+import { UserContext } from "../../Context/UserContext";
+import { SignOff } from "../../Components/UI/SignOff/SignOff";
 
 export const Chats = () => {
   const navigate = useNavigate();
   const [connection, setConnection] = useState(null);
-  const [usuario, setUsuario] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
   const [messageList, setMessageList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { user } = useContext(UserContext);
+
+  console.log(user);
 
   //Función que recibe los mensajes y los guarda en el estado tipo array
   const receiveMessage = (message) => {
@@ -39,16 +47,17 @@ export const Chats = () => {
 
   useEffect(() => {
     if (connection) {
+      setIsLoading(true);
       connection
         .start()
         .then(() => {
-          console.log("Conectado al servidor SignalR");
+          setIsLoading(false);
           connection.on("RecibirMensaje", receiveMessage);
           // Carga los mensajes almacenados en el localStorage al iniciar la aplicación
           const storedMessages = localStorage.getItem("messages");
-          console.log(storedMessages);
           if (storedMessages) {
             setMessageList(JSON.parse(storedMessages));
+            setIsLoading(false);
           }
         })
         .catch((error) => {
@@ -57,30 +66,20 @@ export const Chats = () => {
     }
   }, [connection]);
 
-  const enviarMensaje = (message) => {
-    connection.send("EnviarMensaje", message).catch((error) => {
-      console.error("Error al enviar el mensaje: ", error);
-    });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const contenido = {
-      user: usuario,
+      user: user.unique_name,
       messageContent: mensaje,
     };
 
-    if (mensaje && mensaje !== "" && usuario && usuario !== "") {
-      enviarMensaje(contenido);
+    if (mensaje && mensaje !== "") {
+      connection.send("EnviarMensaje", contenido);
       setMensaje("");
     } else {
       setError("Por favor, ingrese todos los datos!");
     }
-  };
-
-  const handleUsuarioChange = (event) => {
-    setUsuario(event.target.value);
   };
 
   const handleMensajeChange = (event) => {
@@ -96,8 +95,30 @@ export const Chats = () => {
 
   return (
     <div className="h-screen bg-neutral-800 flex flex-col">
-      <div className="h-full w-full flex flex-col justify-around items-center">
-        {messageList.length === 0 ? (
+      <header className="bg-neutral-900 h-32 flex items-center">
+        <nav className="px-1 md:px-5 flex items-center w-full">
+          <Link to={"/"}>
+            <AppName />
+          </Link>
+          <ul className="flex justify-end w-full text-gray-400 gap-5 md:gap-10 text-lg items-center  md:text-xl">
+            <li>
+              <Link to="/">Inicio</Link>
+            </li>
+            <li>
+              <Link to="/Profile">Perfíl</Link>
+            </li>
+            <SignOff />
+          </ul>
+        </nav>
+      </header>
+      <div className="h-full w-full flex flex-col justify-between items-center">
+        {isLoading ? (
+          <div className="w-full h-2/5 border border-neutral-700 flex items-center justify-center">
+            <span className="text-xl md:text-4xl text-neutral-300">
+              <ImSpinner6 className="text-4xl animate-spin" />
+            </span>
+          </div>
+        ) : messageList.length === 0 ? (
           <div className="w-full h-2/5 border border-neutral-700 flex items-center justify-center">
             <p className="text-xl md:text-4xl text-neutral-300">
               No hay mensajes por el momento...
@@ -120,23 +141,6 @@ export const Chats = () => {
           </div>
         )}
         <form className="border border-neutral-700 rounded-md w-full h-2/5 flex flex-col justify-around items-center">
-          <div className="flex flex-col gap-1 w-4/5 md:w-1/2 group">
-            <label
-              htmlFor="usuario"
-              className="text-slate-300 text-lg font-bold group group-hover:text-sky-500">
-              Usuario:
-            </label>
-            <input
-              className="px-3 py-2 rounded-lg text-lg text-neutral-950 focus:outline-none group focus:group/focus group-focus:text-indigo-500"
-              type="text"
-              id="usuario"
-              name="usuario"
-              placeholder="Ingresa tu nombre de usuario"
-              value={usuario}
-              onChange={handleUsuarioChange}
-            />
-          </div>
-
           <div className="flex flex-col gap-1 w-4/5 md:w-1/2 group">
             <label
               htmlFor="mensaje"

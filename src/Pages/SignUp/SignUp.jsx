@@ -107,7 +107,7 @@ export const SignUp = () => {
             "Por favor, verifica tu cuenta a través del correo electrónico que ingresaste. Se ha enviado un mensaje de verificación.",
             {
               theme: "dark",
-              position: "top-left",
+              position: "top-center",
             }
           );
         } else {
