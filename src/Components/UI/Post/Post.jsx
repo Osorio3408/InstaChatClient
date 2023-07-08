@@ -83,7 +83,7 @@ const ReactionModal = ({ onClose, onSelectReaction }) => {
   );
 };
 
-export const Post = () => {
+export const Post = ({ name, content }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReaction, setSelectedReaction] = useState(null);
 
@@ -101,10 +101,10 @@ export const Post = () => {
 
   return (
     <div className="bg-neutral-900 h-auto w-full flex flex-col gap-7 rounded-text-xs py-2">
-      <div className="header flex items-center justify-between w-full px-4">
+      <div className="header flex items-center justify-between w-full px-6">
         <div className="flex items-center gap-2">
           <div className="bg-gray-300 w-12 h-12 rounded-full"></div>
-          <h2 className="text-xl text-gray-300">Yuliam Andrey Osorio Puerta</h2>
+          <h2 className="text-xl text-gray-300">{name}</h2>
         </div>
         <ul className="flex justify-end text-4xl text-blue-900">
           <li className="flex">
@@ -112,15 +112,12 @@ export const Post = () => {
           </li>
         </ul>
       </div>
-      <div className="post w-full flex px-4">
-        <p className="text-xl text-slate-100">
-          ¡Mi código es tan eficiente que incluso el café se queda impresionado
-          con su velocidad de ejecución! ☕💻✨
-        </p>
+      <div className="post w-full flex px-6">
+        <p className="text-xl text-slate-100">{content}</p>
       </div>
 
       <div className="flex flex-col items-center justify-center text-4xl text-gray-300 gap-2 relative">
-        <div className="reactions flex justify-start text-left w-full px-4">
+        <div className="reactions flex justify-start text-left w-full px-6">
           <p className="text-sm flex gap-2 text-neutral-300">
             Reacciones: <span className="font-bold">10</span>
           </p>
